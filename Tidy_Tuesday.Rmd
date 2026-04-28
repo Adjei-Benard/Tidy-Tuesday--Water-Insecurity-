@@ -1,0 +1,349 @@
+---
+title: 'TidyTuesday Analysis: Chocolate Ratings'
+author: "Benard_Adjei"
+date: "2026-04-27"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+# Load libraries
+library(tidyverse)
+library(tidytuesdayR)
+library(ggdag)
+library(scales)
+library(patchwork)
+library(sf)
+library(viridis)
+library(modelsummary)
+library(parameters)
+library(estimatr)
+library(broom)
+library(tinytable)
+library(maps)
+library(mapproj)
+
+# Consistent, clean theme for all plots
+theme_set(
+  theme_minimal(base_size = 13) +
+    theme(
+      plot.title      = element_text(face = "bold", size = 14),
+      plot.subtitle   = element_text(color = "grey40", size = 11),
+      plot.caption    = element_text(color = "grey55", size = 9),
+      legend.position = "bottom"
+    )
+)
+```
+
+# Why this dataset?
+
+The 2025 January 28 TidyTuesday dataset covers **water insecurity across U.S. counties in 2023** specifically the share of households that lack complete indoor plumbing. At first glance this might look like a geography or public health dataset, but it's actually a near-perfect case study for program evaluation. Access to clean water is shaped by race, poverty, and political geography in ways that are deeply confounded. You can't just run a regression of "plumbing access" on income and call it a causal estimate there are too many backdoors. This makes the dataset ideal for applying the tools from this course: DAGs to map the confounding structure, regression adjustment to close backdoors, and a discussion of what it would take to actually identify a causal effect.
+
+```{r cars, message=FALSE, warning=FALSE}
+# Load TidyTuesday dataset
+tuesdata <- tidytuesdayR::tt_load("2025-01-28")
+
+water_insecurity_2023 <- tuesdata$water_insecurity_2023
+water <- tuesdata[[1]]
+
+```
+
+
+```{r}
+#| label: clean-data
+#| warning: false
+#| message: false
+
+water_clean <- water |>
+  drop_na() |>
+  # Derive some useful columns for analysis
+  mutate(
+    # Log of total population — large counties span orders of magnitude
+    log_pop = log(total_pop),
+    # Bin counties into four population quartiles for grouped comparisons
+    pop_quartile = ntile(total_pop, 4),
+    pop_quartile_label = factor(
+      pop_quartile,
+      labels = c("Smallest 25%", "25–50%", "50–75%", "Largest 25%")
+    ),
+    # Rough Census region from state FIPS — useful for faceting
+    state_fips = as.integer(str_sub(geoid, 1, 2)),
+    region = case_when(
+      state_fips %in% c(9,23,25,33,44,50,34,36,42) ~ "Northeast",
+      state_fips %in% c(17,18,26,39,55,19,20,27,29,31,38,46) ~ "Midwest",
+      state_fips %in% c(10,11,12,13,24,37,45,51,54,1,21,28,47,5,22,40,48) ~ "South",
+      state_fips %in% c(4,8,16,30,32,35,49,56,2,6,15,41,53) ~ "West",
+      TRUE ~ "Other"
+    ) |> factor(levels = c("Northeast", "Midwest", "South", "West"))
+  ) |>
+  filter(region != "Other")   # drops territories
+
+glimpse(water_clean)
+```
+
+# What does the distribution look like?
+
+Before modeling anything, it's worth just looking at the data.
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-distribution
+#| fig-cap: "Distribution of the share of households lacking complete plumbing, by Census region. The right skew is severe — most counties cluster near zero, but a meaningful tail of counties (especially in the South and West) have strikingly high rates."
+
+ggplot(water_clean, aes(x = percent_lacking_plumbing, fill = region)) +
+  geom_histogram(bins = 60, color = "white", alpha = 0.85) +
+  facet_wrap(~region, nrow = 2) +
+  scale_fill_viridis_d(option = "D", end = 0.85) +
+  scale_x_continuous(labels = label_percent(scale = 1)) +
+  labs(
+    title    = "Household water insecurity is concentrated in a small fraction of counties",
+    subtitle = "Share of households lacking complete indoor plumbing 2023, by Census region",
+    x        = "% households lacking plumbing",
+    y        = "Number of counties",
+    fill     = NULL,
+    caption  = "Source: TidyTuesday 2025-01-28 | PMAP 8521"
+  ) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+#| label: tbl-region-summary
+
+water_clean |>
+  group_by(region) |>
+  summarize(
+    n_counties    = n(),
+    median_pct    = median(percent_lacking_plumbing),
+    mean_pct      = mean(percent_lacking_plumbing),
+    pct_above_2   = mean(percent_lacking_plumbing > 2) * 100
+  ) |>
+  tt(
+    caption = "Water insecurity summary by Census region",
+    digits  = 2
+  ) |>
+  setNames(c("Region", "Counties", "Median %", "Mean %", "% Counties > 2%"))
+```
+
+The South and West have the highest average rates and the longest tails. The median is close to zero everywhere, which means the mean is heavily pulled by a small group of counties with serious infrastructure problems.
+
+
+# A DAG for the causal structure
+
+This is where the program evaluation framing kicks in. Suppose we want to ask: **does population size a proxy for urban infrastructure investment causally reduce water insecurity?** Or more precisely, what would happen to a county's plumbing access rate if its population changed, holding everything else constant?
+
+We can't answer that with a raw correlation, because larger counties also tend to be wealthier, located in different regions, and have more political capacity to demand infrastructure investment. All of those factors independently affect plumbing access. We need to map the backdoors before we can close them.
+
+```{r}
+#| label: fig-dag
+#| fig-cap: "DAG for the relationship between county population size and household water insecurity. Region and poverty (proxied here by total population context) are backdoor confounders they affect both how large a county is and how much plumbing access it has."
+
+
+water_dag <- dagify(
+  plumbing    ~ population + region + poverty,
+  population  ~ region,
+  poverty     ~ region,
+  plumbing    ~ poverty,
+  outcome  = "plumbing",
+  exposure = "population",
+  labels = list(
+    plumbing   = "% Lacking\nPlumbing",
+    population = "County\nPopulation",
+    region     = "Census\nRegion",
+    poverty    = "Economic\nConditions"
+  ),
+  coords = list(
+    x = c(population = 1, region = 2.5, poverty = 2.5, plumbing = 4),
+    y = c(population = 1, region = 2,   poverty = 0,   plumbing = 1)
+  )
+)
+
+ggdag_status(water_dag, use_labels = "label", text = FALSE) +
+  theme_dag() +
+  guides(color = "none") +
+  labs(
+    title    = "Causal structure: population size and water insecurity",
+    subtitle = "Region and economic conditions are backdoor confounders"
+  )
+```
+
+## Interpretating the DAG:
+The arrow from **Region → Population** means counties in different parts of the country tend to differ in size. An arrow from **Region → % Lacking Plumbing** means geography independently shapes infrastructure. **Economic Conditions** (poverty) also connects both to county size and to plumbing access. So a naive regression of plumbing rates on population size would conflate the infrastructure investment story with these regional and economic patterns. To get the causal estimate, we need to condition on region and economic conditions.
+
+
+#The map
+
+A map is the most immediate way to communicate where the problem is actually located
+
+```{r message=FALSE, warning=FALSE}
+#| label: fig-map
+#| fig-cap: County-level household water insecurity across the continental United States, 2023. Counties shaded darker have higher shares of households without complete indoor plumbing. Clusters in the rural South, Appalachia, the Southwest, and parts of the Great Plains are visible.
+
+
+# Drop geometry from the sf object so we can join to a pre-built county map
+water_df <- water_clean |>
+  st_drop_geometry() |>
+  mutate(fips = geoid)
+
+# Use map_data for a lightweight base map (no heavy shapefile needed)
+counties_map <- map_data("county")
+
+# FIPS lookup to join on state + county name
+data(county.fips, package = "maps")
+county_fips_clean <- county.fips |>
+  as_tibble() |>
+  mutate(
+    fips      = str_pad(as.character(fips), 5, pad = "0"),
+    polyname  = polyname
+  )
+
+water_map_df <- water_df |>
+  left_join(county_fips_clean, by = "fips") |>
+  separate(polyname, into = c("region_map", "subregion"), sep = ",", extra = "drop") |>
+  right_join(counties_map, by = c("region_map" = "region", "subregion" = "subregion"))
+
+ggplot(water_map_df, aes(x = long, y = lat, group = group,
+                          fill = percent_lacking_plumbing)) +
+  geom_polygon(color = NA) +
+  geom_polygon(
+    data  = map_data("state"),
+    aes(x = long, y = lat, group = group),
+    fill  = NA, color = "white", linewidth = 0.3,
+    inherit.aes = FALSE
+  ) +
+  coord_map("albers", lat0 = 29.5, lat1 = 45.5) +
+  scale_fill_viridis_c(
+    option   = "magma",
+    direction = -1,
+    na.value = "grey88",
+    labels   = label_percent(scale = 1),
+    breaks   = c(0, 1, 2, 5, 10, 20),
+    trans    = "sqrt",
+    name     = "% lacking plumbing"
+  ) +
+  labs(
+    title    = "Where are U.S. households still without complete indoor plumbing?",
+    subtitle = "County-level rates, 2023 square root color scale to show variation in low-rate counties",
+    caption  = "Source: TidyTuesday 2025-01-28 | PMAP 8521"
+  ) 
+```
+
+
+The geographic clustering is striking. The counties with the highest rates are not randomly distributed, they're concentrated in specific places that share histories of underinvestment: the rural South, tribal lands in the Southwest and Northern Plains, and parts of Appalachia. This pattern alone tells you there's a regional confounder at work, exactly as the DAG specified.
+
+
+# Naive vs. adjusted regression
+
+Now for the modeling. Following the DAG, I run two regressions:
+
+- **Naive**: just regress the plumbing rate on log population, ignoring the backdoors.
+- **Adjusted**: add region fixed effects to close the Region backdoor path. This is the adjustment-based identification strategy from week 7 of the course.
+
+```{r}
+#| label: regression-models
+
+# Naive model — ignores regional confounding
+model_naive <- lm_robust(
+  percent_lacking_plumbing ~ log_pop,
+  data = water_clean)
+model_naive
+
+# Adjusted model — region fixed effects close the regional backdoor
+model_adjusted <- lm_robust(
+  percent_lacking_plumbing ~ log_pop + region,
+  data = water_clean)
+model_adjusted
+
+
+# Population-quartile model — non-parametric version of the same question
+model_quartile <- lm_robust(
+  percent_lacking_plumbing ~ pop_quartile_label + region,
+  data = water_clean)
+model_quartile
+```
+
+```{r}
+#| label: tbl-regression-results
+
+
+modelsummary(
+  list(
+    "Naive"    = model_naive,
+    "Adjusted" = model_adjusted
+  ),
+  stars   = TRUE,
+  gof_map = c("nobs", "r.squared"),
+  coef_rename = c(
+    "(Intercept)"                     = "Intercept",
+    "log_pop"                         = "Log county population",
+    "regionMidwest"                   = "Region: Midwest",
+    "regionSouth"                     = "Region: South",
+    "regionWest"                      = "Region: West"
+  ),
+  title = "Naive vs. region-adjusted estimates: population and water insecurity"
+)
+```
+
+The naive model says that larger counties have lower plumbing insecurity rates which is technically true as a raw correlation. But once we control for region (closing that backdoor path), the estimate on log population changes. The regional fixed effects absorb the fact that larger counties also tend to be in different parts of the country with different baseline infrastructure. What's left is closer to a within region comparison: among counties in the same part of the country, do bigger ones have lower rates?
+
+# Visualizing the adjusted relationship
+
+```{r}
+ggplot(water_clean, aes(x = log_pop, y = percent_lacking_plumbing, color = region)) +
+  geom_point(alpha = 0.18, size = 0.9) +
+  geom_smooth(method = "lm", se = TRUE, linewidth = 1.1) +
+  scale_color_viridis_d(option = "D", end = 0.85) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  facet_wrap(~region) +
+  labs(
+    title    = "Larger counties tend to have lower water insecurity but region matters a lot",
+    subtitle = "Each panel shows within-region relationship between population size and plumbing access",
+    x        = "Log county population",
+    y        = "% households lacking plumbing",
+    color    = NULL,
+    caption  = "Source: TidyTuesday 2025-01-28 | PMAP 8521"
+  ) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+water_clean |>
+  group_by(pop_quartile_label, region) |>
+  summarize(
+    mean_pct = mean(percent_lacking_plumbing),
+    se_pct   = sd(percent_lacking_plumbing) / sqrt(n()),
+    n        = n()
+  ) |>
+  ggplot(aes(x = pop_quartile_label, y = mean_pct,
+             color = region, group = region)) +
+  geom_line(linewidth = 1) +
+  geom_pointrange(aes(ymin = mean_pct - 1.96 * se_pct,
+                       ymax = mean_pct + 1.96 * se_pct),
+                  size = 0.5) +
+  scale_color_viridis_d(option = "D", end = 0.85) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  labs(
+    title    = "Water insecurity declines with county size but the regional gap persists",
+    subtitle = "Mean % households lacking plumbing by population quartile and region (±95% CI)",
+    x        = "County population quartile",
+    y        = "Mean % lacking plumbing",
+    color    = "Census region",
+    caption  = "Source: TidyTuesday 2025-01-28 | PMAP 8521"
+  )
+```
+
+The quartile plot drives home the confounding story from the DAG. In every region, the smallest counties tend to have the highest rates of plumbing insecurity infrastructure investment scales with population. But the level differs dramatically by region: even the largest Southern counties have rates comparable to the smallest Northeastern ones. If you only looked at the raw correlation between population and plumbing access without accounting for region, you'd get a misleading picture of what's actually driving the variation.
+
+
+
+# Putting it together
+
+This water insecurity example shows a common issue in program evaluation: the outcome we care about is influenced by many overlapping factors. A county’s plumbing access isn’t just about population size, it’s also shaped by its region, economic conditions, history, and institutions.
+
+If we run a simple regression without accounting for these factors, we end up mixing the effect of population with all the other things tied to it. Controlling for region helps improve the analysis because it removes one of the most obvious sources of bias and lets us compare counties more fairly within the same region. It’s still not a perfect causal estimate, but it’s clearly better than the naive approach, and using a DAG helps clarify what we’re controlling for and what assumptions we’re making.
+
+If I were taking this further, I’d look for some kind of external variation in infrastructure investment, like a policy change or funding rule, that isn’t driven by the counties themselves. That’s what would allow us to move from just describing patterns to actually identifying a causal effect.
+
+

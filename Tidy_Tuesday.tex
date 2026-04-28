@@ -1,0 +1,655 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{float}
+\usepackage{tabularray}
+\usepackage[normalem]{ulem}
+\usepackage{graphicx}
+\usepackage{rotating}
+\UseTblrLibrary{booktabs}
+\UseTblrLibrary{siunitx}
+\NewTableCommand{\tinytableDefineColor}[3]{\definecolor{#1}{#2}{#3}}
+\newcommand{\tinytableTabularrayUnderline}[1]{\underline{#1}}
+\newcommand{\tinytableTabularrayStrikeout}[1]{\sout{#1}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={TidyTuesday Analysis: Chocolate Ratings},
+  pdfauthor={Benard\_Adjei},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{TidyTuesday Analysis: Chocolate Ratings}
+\author{Benard\_Adjei}
+\date{2026-04-27}
+
+\begin{document}
+\maketitle
+
+\section{Why this dataset?}\label{why-this-dataset}
+
+The 2025 January 28 TidyTuesday dataset covers \textbf{water insecurity
+across U.S. counties in 2023} specifically the share of households that
+lack complete indoor plumbing. At first glance this might look like a
+geography or public health dataset, but it's actually a near-perfect
+case study for program evaluation. Access to clean water is shaped by
+race, poverty, and political geography in ways that are deeply
+confounded. You can't just run a regression of ``plumbing access'' on
+income and call it a causal estimate there are too many backdoors. This
+makes the dataset ideal for applying the tools from this course: DAGs to
+map the confounding structure, regression adjustment to close backdoors,
+and a discussion of what it would take to actually identify a causal
+effect.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load TidyTuesday dataset}
+\NormalTok{tuesdata }\OtherTok{\textless{}{-}}\NormalTok{ tidytuesdayR}\SpecialCharTok{::}\FunctionTok{tt\_load}\NormalTok{(}\StringTok{"2025{-}01{-}28"}\NormalTok{)}
+
+\NormalTok{water\_insecurity\_2023 }\OtherTok{\textless{}{-}}\NormalTok{ tuesdata}\SpecialCharTok{$}\NormalTok{water\_insecurity\_2023}
+\NormalTok{water }\OtherTok{\textless{}{-}}\NormalTok{ tuesdata[[}\DecValTok{1}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_clean }\OtherTok{\textless{}{-}}\NormalTok{ water }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{drop\_na}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \CommentTok{\# Derive some useful columns for analysis}
+  \FunctionTok{mutate}\NormalTok{(}
+    \CommentTok{\# Log of total population — large counties span orders of magnitude}
+    \AttributeTok{log\_pop =} \FunctionTok{log}\NormalTok{(total\_pop),}
+    \CommentTok{\# Bin counties into four population quartiles for grouped comparisons}
+    \AttributeTok{pop\_quartile =} \FunctionTok{ntile}\NormalTok{(total\_pop, }\DecValTok{4}\NormalTok{),}
+    \AttributeTok{pop\_quartile\_label =} \FunctionTok{factor}\NormalTok{(}
+\NormalTok{      pop\_quartile,}
+      \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Smallest 25\%"}\NormalTok{, }\StringTok{"25–50\%"}\NormalTok{, }\StringTok{"50–75\%"}\NormalTok{, }\StringTok{"Largest 25\%"}\NormalTok{)}
+\NormalTok{    ),}
+    \CommentTok{\# Rough Census region from state FIPS — useful for faceting}
+    \AttributeTok{state\_fips =} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{str\_sub}\NormalTok{(geoid, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)),}
+    \AttributeTok{region =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      state\_fips }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{9}\NormalTok{,}\DecValTok{23}\NormalTok{,}\DecValTok{25}\NormalTok{,}\DecValTok{33}\NormalTok{,}\DecValTok{44}\NormalTok{,}\DecValTok{50}\NormalTok{,}\DecValTok{34}\NormalTok{,}\DecValTok{36}\NormalTok{,}\DecValTok{42}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Northeast"}\NormalTok{,}
+\NormalTok{      state\_fips }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{17}\NormalTok{,}\DecValTok{18}\NormalTok{,}\DecValTok{26}\NormalTok{,}\DecValTok{39}\NormalTok{,}\DecValTok{55}\NormalTok{,}\DecValTok{19}\NormalTok{,}\DecValTok{20}\NormalTok{,}\DecValTok{27}\NormalTok{,}\DecValTok{29}\NormalTok{,}\DecValTok{31}\NormalTok{,}\DecValTok{38}\NormalTok{,}\DecValTok{46}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Midwest"}\NormalTok{,}
+\NormalTok{      state\_fips }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{12}\NormalTok{,}\DecValTok{13}\NormalTok{,}\DecValTok{24}\NormalTok{,}\DecValTok{37}\NormalTok{,}\DecValTok{45}\NormalTok{,}\DecValTok{51}\NormalTok{,}\DecValTok{54}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{21}\NormalTok{,}\DecValTok{28}\NormalTok{,}\DecValTok{47}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{22}\NormalTok{,}\DecValTok{40}\NormalTok{,}\DecValTok{48}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"South"}\NormalTok{,}
+\NormalTok{      state\_fips }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{16}\NormalTok{,}\DecValTok{30}\NormalTok{,}\DecValTok{32}\NormalTok{,}\DecValTok{35}\NormalTok{,}\DecValTok{49}\NormalTok{,}\DecValTok{56}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{6}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{41}\NormalTok{,}\DecValTok{53}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"West"}\NormalTok{,}
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"Other"}
+\NormalTok{    ) }\SpecialCharTok{|\textgreater{}} \FunctionTok{factor}\NormalTok{(}\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Northeast"}\NormalTok{, }\StringTok{"Midwest"}\NormalTok{, }\StringTok{"South"}\NormalTok{, }\StringTok{"West"}\NormalTok{))}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{(region }\SpecialCharTok{!=} \StringTok{"Other"}\NormalTok{)   }\CommentTok{\# drops territories}
+
+\FunctionTok{glimpse}\NormalTok{(water\_clean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 835
+## Columns: 12
+## $ geoid                    <chr> "01069", "04001", "06037", "06097", "06001", ~
+## $ name                     <chr> "Houston County, Alabama", "Apache County, Ar~
+## $ year                     <dbl> 2022, 2022, 2022, 2022, 2022, 2022, 2022, 202~
+## $ geometry                 <chr> "list(list(c(975267.980555021, 975512.9445474~
+## $ total_pop                <dbl> 108079, 65432, 9721138, 482650, 1628997, 8978~
+## $ plumbing                 <dbl> 93, 2440, 6195, 148, 808, 18, 128, 0, 123, 13~
+## $ percent_lacking_plumbing <dbl> 0.08604817, 3.72906223, 0.06372711, 0.0306640~
+## $ log_pop                  <dbl> 11.59062, 11.08877, 16.08981, 13.08705, 14.30~
+## $ pop_quartile             <int> 2, 1, 4, 4, 4, 1, 2, 2, 3, 4, 4, 3, 4, 3, 1, ~
+## $ pop_quartile_label       <fct> 25–50%, Smallest 25%, Largest 25%, Largest 25~
+## $ state_fips               <int> 1, 4, 6, 6, 6, 6, 8, 6, 10, 12, 12, 12, 17, 1~
+## $ region                   <fct> South, West, West, West, West, West, West, We~
+\end{verbatim}
+
+\section{What does the distribution look
+like?}\label{what-does-the-distribution-look-like}
+
+Before modeling anything, it's worth just looking at the data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(water\_clean, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ percent\_lacking\_plumbing, }\AttributeTok{fill =}\NormalTok{ region)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{bins =} \DecValTok{60}\NormalTok{, }\AttributeTok{color =} \StringTok{"white"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{region, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_viridis\_d}\NormalTok{(}\AttributeTok{option =} \StringTok{"D"}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{label\_percent}\NormalTok{(}\AttributeTok{scale =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title    =} \StringTok{"Household water insecurity is concentrated in a small fraction of counties"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Share of households lacking complete indoor plumbing 2023, by Census region"}\NormalTok{,}
+    \AttributeTok{x        =} \StringTok{"\% households lacking plumbing"}\NormalTok{,}
+    \AttributeTok{y        =} \StringTok{"Number of counties"}\NormalTok{,}
+    \AttributeTok{fill     =} \ConstantTok{NULL}\NormalTok{,}
+    \AttributeTok{caption  =} \StringTok{"Source: TidyTuesday 2025{-}01{-}28 | PMAP 8521"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{Tidy_Tuesday_files/figure-latex/fig-distribution-1.pdf}}
+\caption{Distribution of the share of households lacking complete
+plumbing, by Census region. The right skew is severe --- most counties
+cluster near zero, but a meaningful tail of counties (especially in the
+South and West) have strikingly high rates.}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_clean }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(region) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{n\_counties    =} \FunctionTok{n}\NormalTok{(),}
+    \AttributeTok{median\_pct    =} \FunctionTok{median}\NormalTok{(percent\_lacking\_plumbing),}
+    \AttributeTok{mean\_pct      =} \FunctionTok{mean}\NormalTok{(percent\_lacking\_plumbing),}
+    \AttributeTok{pct\_above\_2   =} \FunctionTok{mean}\NormalTok{(percent\_lacking\_plumbing }\SpecialCharTok{\textgreater{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{*} \DecValTok{100}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{tt}\NormalTok{(}
+    \AttributeTok{caption =} \StringTok{"Water insecurity summary by Census region"}\NormalTok{,}
+    \AttributeTok{digits  =} \DecValTok{2}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{setNames}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Region"}\NormalTok{, }\StringTok{"Counties"}\NormalTok{, }\StringTok{"Median \%"}\NormalTok{, }\StringTok{"Mean \%"}\NormalTok{, }\StringTok{"\% Counties \textgreater{} 2\%"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Water insecurity summary by Census region},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+}                     %% tabularray inner close
+\toprule
+Region & Counties & Median % & Mean % & % Counties > 2% \\ \midrule %% TinyTableHeader
+Northeast & 136 & 0.058 & 0.088 & 0 \\
+Midwest & 203 & 0.05 & 0.07 & 0 \\
+South & 358 & 0.053 & 0.084 & 0 \\
+West & 138 & 0.065 & 0.169 & 1.4 \\
+\bottomrule
+\end{talltblr}
+\end{table}
+
+The South and West have the highest average rates and the longest tails.
+The median is close to zero everywhere, which means the mean is heavily
+pulled by a small group of counties with serious infrastructure
+problems.
+
+\section{A DAG for the causal
+structure}\label{a-dag-for-the-causal-structure}
+
+This is where the program evaluation framing kicks in. Suppose we want
+to ask: \textbf{does population size a proxy for urban infrastructure
+investment causally reduce water insecurity?} Or more precisely, what
+would happen to a county's plumbing access rate if its population
+changed, holding everything else constant?
+
+We can't answer that with a raw correlation, because larger counties
+also tend to be wealthier, located in different regions, and have more
+political capacity to demand infrastructure investment. All of those
+factors independently affect plumbing access. We need to map the
+backdoors before we can close them.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_dag }\OtherTok{\textless{}{-}} \FunctionTok{dagify}\NormalTok{(}
+\NormalTok{  plumbing    }\SpecialCharTok{\textasciitilde{}}\NormalTok{ population }\SpecialCharTok{+}\NormalTok{ region }\SpecialCharTok{+}\NormalTok{ poverty,}
+\NormalTok{  population  }\SpecialCharTok{\textasciitilde{}}\NormalTok{ region,}
+\NormalTok{  poverty     }\SpecialCharTok{\textasciitilde{}}\NormalTok{ region,}
+\NormalTok{  plumbing    }\SpecialCharTok{\textasciitilde{}}\NormalTok{ poverty,}
+  \AttributeTok{outcome  =} \StringTok{"plumbing"}\NormalTok{,}
+  \AttributeTok{exposure =} \StringTok{"population"}\NormalTok{,}
+  \AttributeTok{labels =} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{plumbing   =} \StringTok{"\% Lacking}\SpecialCharTok{\textbackslash{}n}\StringTok{Plumbing"}\NormalTok{,}
+    \AttributeTok{population =} \StringTok{"County}\SpecialCharTok{\textbackslash{}n}\StringTok{Population"}\NormalTok{,}
+    \AttributeTok{region     =} \StringTok{"Census}\SpecialCharTok{\textbackslash{}n}\StringTok{Region"}\NormalTok{,}
+    \AttributeTok{poverty    =} \StringTok{"Economic}\SpecialCharTok{\textbackslash{}n}\StringTok{Conditions"}
+\NormalTok{  ),}
+  \AttributeTok{coords =} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{x =} \FunctionTok{c}\NormalTok{(}\AttributeTok{population =} \DecValTok{1}\NormalTok{, }\AttributeTok{region =} \FloatTok{2.5}\NormalTok{, }\AttributeTok{poverty =} \FloatTok{2.5}\NormalTok{, }\AttributeTok{plumbing =} \DecValTok{4}\NormalTok{),}
+    \AttributeTok{y =} \FunctionTok{c}\NormalTok{(}\AttributeTok{population =} \DecValTok{1}\NormalTok{, }\AttributeTok{region =} \DecValTok{2}\NormalTok{,   }\AttributeTok{poverty =} \DecValTok{0}\NormalTok{,   }\AttributeTok{plumbing =} \DecValTok{1}\NormalTok{)}
+\NormalTok{  )}
+\NormalTok{)}
+
+\FunctionTok{ggdag\_status}\NormalTok{(water\_dag, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{, }\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_dag}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{guides}\NormalTok{(}\AttributeTok{color =} \StringTok{"none"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title    =} \StringTok{"Causal structure: population size and water insecurity"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Region and economic conditions are backdoor confounders"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{Tidy_Tuesday_files/figure-latex/fig-dag-1.pdf}}
+\caption{DAG for the relationship between county population size and
+household water insecurity. Region and poverty (proxied here by total
+population context) are backdoor confounders they affect both how large
+a county is and how much plumbing access it has.}
+\end{figure}
+
+\subsection{Interpretating the DAG:}\label{interpretating-the-dag}
+
+The arrow from \textbf{Region → Population} means counties in different
+parts of the country tend to differ in size. An arrow from
+\textbf{Region → \% Lacking Plumbing} means geography independently
+shapes infrastructure. \textbf{Economic Conditions} (poverty) also
+connects both to county size and to plumbing access. So a naive
+regression of plumbing rates on population size would conflate the
+infrastructure investment story with these regional and economic
+patterns. To get the causal estimate, we need to condition on region and
+economic conditions.
+
+\#The map
+
+A map is the most immediate way to communicate where the problem is
+actually located
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Drop geometry from the sf object so we can join to a pre{-}built county map}
+\NormalTok{water\_df }\OtherTok{\textless{}{-}}\NormalTok{ water\_clean }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{st\_drop\_geometry}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{fips =}\NormalTok{ geoid)}
+
+\CommentTok{\# Use map\_data for a lightweight base map (no heavy shapefile needed)}
+\NormalTok{counties\_map }\OtherTok{\textless{}{-}} \FunctionTok{map\_data}\NormalTok{(}\StringTok{"county"}\NormalTok{)}
+
+\CommentTok{\# FIPS lookup to join on state + county name}
+\FunctionTok{data}\NormalTok{(county.fips, }\AttributeTok{package =} \StringTok{"maps"}\NormalTok{)}
+\NormalTok{county\_fips\_clean }\OtherTok{\textless{}{-}}\NormalTok{ county.fips }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{as\_tibble}\NormalTok{() }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{fips      =} \FunctionTok{str\_pad}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(fips), }\DecValTok{5}\NormalTok{, }\AttributeTok{pad =} \StringTok{"0"}\NormalTok{),}
+    \AttributeTok{polyname  =}\NormalTok{ polyname}
+\NormalTok{  )}
+
+\NormalTok{water\_map\_df }\OtherTok{\textless{}{-}}\NormalTok{ water\_df }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{left\_join}\NormalTok{(county\_fips\_clean, }\AttributeTok{by =} \StringTok{"fips"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{separate}\NormalTok{(polyname, }\AttributeTok{into =} \FunctionTok{c}\NormalTok{(}\StringTok{"region\_map"}\NormalTok{, }\StringTok{"subregion"}\NormalTok{), }\AttributeTok{sep =} \StringTok{","}\NormalTok{, }\AttributeTok{extra =} \StringTok{"drop"}\NormalTok{) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{right\_join}\NormalTok{(counties\_map, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"region\_map"} \OtherTok{=} \StringTok{"region"}\NormalTok{, }\StringTok{"subregion"} \OtherTok{=} \StringTok{"subregion"}\NormalTok{))}
+
+\FunctionTok{ggplot}\NormalTok{(water\_map\_df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ long, }\AttributeTok{y =}\NormalTok{ lat, }\AttributeTok{group =}\NormalTok{ group,}
+                          \AttributeTok{fill =}\NormalTok{ percent\_lacking\_plumbing)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_polygon}\NormalTok{(}\AttributeTok{color =} \ConstantTok{NA}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_polygon}\NormalTok{(}
+    \AttributeTok{data  =} \FunctionTok{map\_data}\NormalTok{(}\StringTok{"state"}\NormalTok{),}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ long, }\AttributeTok{y =}\NormalTok{ lat, }\AttributeTok{group =}\NormalTok{ group),}
+    \AttributeTok{fill  =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{color =} \StringTok{"white"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.3}\NormalTok{,}
+    \AttributeTok{inherit.aes =} \ConstantTok{FALSE}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{coord\_map}\NormalTok{(}\StringTok{"albers"}\NormalTok{, }\AttributeTok{lat0 =} \FloatTok{29.5}\NormalTok{, }\AttributeTok{lat1 =} \FloatTok{45.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_viridis\_c}\NormalTok{(}
+    \AttributeTok{option   =} \StringTok{"magma"}\NormalTok{,}
+    \AttributeTok{direction =} \SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}
+    \AttributeTok{na.value =} \StringTok{"grey88"}\NormalTok{,}
+    \AttributeTok{labels   =} \FunctionTok{label\_percent}\NormalTok{(}\AttributeTok{scale =} \DecValTok{1}\NormalTok{),}
+    \AttributeTok{breaks   =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{20}\NormalTok{),}
+    \AttributeTok{trans    =} \StringTok{"sqrt"}\NormalTok{,}
+    \AttributeTok{name     =} \StringTok{"\% lacking plumbing"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title    =} \StringTok{"Where are U.S. households still without complete indoor plumbing?"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"County{-}level rates, 2023 square root color scale to show variation in low{-}rate counties"}\NormalTok{,}
+    \AttributeTok{caption  =} \StringTok{"Source: TidyTuesday 2025{-}01{-}28 | PMAP 8521"}
+\NormalTok{  ) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{Tidy_Tuesday_files/figure-latex/fig-map-1.pdf}}
+\caption{County-level household water insecurity across the continental
+United States, 2023. Counties shaded darker have higher shares of
+households without complete indoor plumbing. Clusters in the rural
+South, Appalachia, the Southwest, and parts of the Great Plains are
+visible.}
+\end{figure}
+
+The geographic clustering is striking. The counties with the highest
+rates are not randomly distributed, they're concentrated in specific
+places that share histories of underinvestment: the rural South, tribal
+lands in the Southwest and Northern Plains, and parts of Appalachia.
+This pattern alone tells you there's a regional confounder at work,
+exactly as the DAG specified.
+
+\section{Naive vs.~adjusted
+regression}\label{naive-vs.-adjusted-regression}
+
+Now for the modeling. Following the DAG, I run two regressions:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Naive}: just regress the plumbing rate on log population,
+  ignoring the backdoors.
+\item
+  \textbf{Adjusted}: add region fixed effects to close the Region
+  backdoor path. This is the adjustment-based identification strategy
+  from week 7 of the course.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Naive model — ignores regional confounding}
+\NormalTok{model\_naive }\OtherTok{\textless{}{-}} \FunctionTok{lm\_robust}\NormalTok{(}
+\NormalTok{  percent\_lacking\_plumbing }\SpecialCharTok{\textasciitilde{}}\NormalTok{ log\_pop,}
+  \AttributeTok{data =}\NormalTok{ water\_clean)}
+\NormalTok{model\_naive}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                Estimate  Std. Error   t value     Pr(>|t|)    CI Lower
+## (Intercept)  0.46014543 0.105539459  4.359937 1.463788e-05  0.25299090
+## log_pop     -0.02988451 0.008127945 -3.676761 2.513547e-04 -0.04583817
+##                CI Upper  DF
+## (Intercept)  0.66729996 833
+## log_pop     -0.01393085 833
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Adjusted model — region fixed effects close the regional backdoor}
+\NormalTok{model\_adjusted }\OtherTok{\textless{}{-}} \FunctionTok{lm\_robust}\NormalTok{(}
+\NormalTok{  percent\_lacking\_plumbing }\SpecialCharTok{\textasciitilde{}}\NormalTok{ log\_pop }\SpecialCharTok{+}\NormalTok{ region,}
+  \AttributeTok{data =}\NormalTok{ water\_clean)}
+\NormalTok{model\_adjusted}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                  Estimate Std. Error   t value     Pr(>|t|)     CI Lower
+## (Intercept)    0.54136170 0.12789835  4.232750 2.566106e-05  0.290319468
+## log_pop       -0.03645625 0.01012895 -3.599213 3.381017e-04 -0.056337626
+## regionMidwest -0.03235322 0.01240224 -2.608659 9.253287e-03 -0.056696661
+## regionSouth   -0.01543793 0.01146431 -1.346607 1.784744e-01 -0.037940381
+## regionWest     0.08174787 0.03810702  2.145218 3.222501e-02  0.006950404
+##                   CI Upper  DF
+## (Intercept)    0.792403933 830
+## log_pop       -0.016574884 830
+## regionMidwest -0.008009769 830
+## regionSouth    0.007064529 830
+## regionWest     0.156545341 830
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Population{-}quartile model — non{-}parametric version of the same question}
+\NormalTok{model\_quartile }\OtherTok{\textless{}{-}} \FunctionTok{lm\_robust}\NormalTok{(}
+\NormalTok{  percent\_lacking\_plumbing }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pop\_quartile\_label }\SpecialCharTok{+}\NormalTok{ region,}
+  \AttributeTok{data =}\NormalTok{ water\_clean)}
+\NormalTok{model\_quartile}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                                  Estimate Std. Error   t value     Pr(>|t|)
+## (Intercept)                    0.14131459 0.02383721  5.928321 4.489863e-09
+## pop_quartile_label25–50%      -0.03249231 0.02645483 -1.228218 2.197141e-01
+## pop_quartile_label50–75%      -0.06118642 0.02491102 -2.456199 1.424587e-02
+## pop_quartile_labelLargest 25% -0.08941856 0.02746446 -3.255791 1.176718e-03
+## regionMidwest                 -0.02958335 0.01194993 -2.475608 1.349999e-02
+## regionSouth                   -0.01408586 0.01116941 -1.261110 2.076244e-01
+## regionWest                     0.07992975 0.03748661  2.132221 3.328237e-02
+##                                   CI Lower     CI Upper  DF
+## (Intercept)                    0.094526137  0.188103051 828
+## pop_quartile_label25–50%      -0.084418737  0.019434117 828
+## pop_quartile_label50–75%      -0.110082587 -0.012290250 828
+## pop_quartile_labelLargest 25% -0.143326715 -0.035510403 828
+## regionMidwest                 -0.053039078 -0.006127623 828
+## regionSouth                   -0.036009550  0.007837833 828
+## regionWest                     0.006349782  0.153509718 828
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{modelsummary}\NormalTok{(}
+  \FunctionTok{list}\NormalTok{(}
+    \StringTok{"Naive"}    \OtherTok{=}\NormalTok{ model\_naive,}
+    \StringTok{"Adjusted"} \OtherTok{=}\NormalTok{ model\_adjusted}
+\NormalTok{  ),}
+  \AttributeTok{stars   =} \ConstantTok{TRUE}\NormalTok{,}
+  \AttributeTok{gof\_map =} \FunctionTok{c}\NormalTok{(}\StringTok{"nobs"}\NormalTok{, }\StringTok{"r.squared"}\NormalTok{),}
+  \AttributeTok{coef\_rename =} \FunctionTok{c}\NormalTok{(}
+    \StringTok{"(Intercept)"}                     \OtherTok{=} \StringTok{"Intercept"}\NormalTok{,}
+    \StringTok{"log\_pop"}                         \OtherTok{=} \StringTok{"Log county population"}\NormalTok{,}
+    \StringTok{"regionMidwest"}                   \OtherTok{=} \StringTok{"Region: Midwest"}\NormalTok{,}
+    \StringTok{"regionSouth"}                     \OtherTok{=} \StringTok{"Region: South"}\NormalTok{,}
+    \StringTok{"regionWest"}                      \OtherTok{=} \StringTok{"Region: West"}
+\NormalTok{  ),}
+  \AttributeTok{title =} \StringTok{"Naive vs. region{-}adjusted estimates: population and water insecurity"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Naive vs. region-adjusted estimates: population and water insecurity},
+note{}={+ p \num{< 0.1}, * p \num{< 0.05}, ** p \num{< 0.01}, *** p \num{< 0.001}},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2-3}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{12}={1-3}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Naive & Adjusted \\ \midrule %% TinyTableHeader
+Intercept & \num{0.460}*** & \num{0.541}*** \\
+& (\num{0.106}) & (\num{0.128}) \\
+Log county population & \num{-0.030}*** & \num{-0.036}*** \\
+& (\num{0.008}) & (\num{0.010}) \\
+Region: Midwest &  & \num{-0.032}** \\
+&  & (\num{0.012}) \\
+Region: South &  & \num{-0.015} \\
+&  & (\num{0.011}) \\
+Region: West &  & \num{0.082}* \\
+&  & (\num{0.038}) \\
+Num.Obs. & \num{835} & \num{835} \\
+R2 & \num{0.018} & \num{0.053} \\
+\bottomrule
+\end{talltblr}
+\end{table}
+
+The naive model says that larger counties have lower plumbing insecurity
+rates which is technically true as a raw correlation. But once we
+control for region (closing that backdoor path), the estimate on log
+population changes. The regional fixed effects absorb the fact that
+larger counties also tend to be in different parts of the country with
+different baseline infrastructure. What's left is closer to a within
+region comparison: among counties in the same part of the country, do
+bigger ones have lower rates?
+
+\section{Visualizing the adjusted
+relationship}\label{visualizing-the-adjusted-relationship}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(water\_clean, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ log\_pop, }\AttributeTok{y =}\NormalTok{ percent\_lacking\_plumbing, }\AttributeTok{color =}\NormalTok{ region)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.18}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{1.1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_viridis\_d}\NormalTok{(}\AttributeTok{option =} \StringTok{"D"}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{label\_percent}\NormalTok{(}\AttributeTok{scale =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{region) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title    =} \StringTok{"Larger counties tend to have lower water insecurity but region matters a lot"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Each panel shows within{-}region relationship between population size and plumbing access"}\NormalTok{,}
+    \AttributeTok{x        =} \StringTok{"Log county population"}\NormalTok{,}
+    \AttributeTok{y        =} \StringTok{"\% households lacking plumbing"}\NormalTok{,}
+    \AttributeTok{color    =} \ConstantTok{NULL}\NormalTok{,}
+    \AttributeTok{caption  =} \StringTok{"Source: TidyTuesday 2025{-}01{-}28 | PMAP 8521"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using formula = 'y ~ x'
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Tidy_Tuesday_files/figure-latex/unnamed-chunk-1-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{water\_clean }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{group\_by}\NormalTok{(pop\_quartile\_label, region) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{mean\_pct =} \FunctionTok{mean}\NormalTok{(percent\_lacking\_plumbing),}
+    \AttributeTok{se\_pct   =} \FunctionTok{sd}\NormalTok{(percent\_lacking\_plumbing) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{n}\NormalTok{()),}
+    \AttributeTok{n        =} \FunctionTok{n}\NormalTok{()}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pop\_quartile\_label, }\AttributeTok{y =}\NormalTok{ mean\_pct,}
+             \AttributeTok{color =}\NormalTok{ region, }\AttributeTok{group =}\NormalTok{ region)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ mean\_pct }\SpecialCharTok{{-}} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ se\_pct,}
+                       \AttributeTok{ymax =}\NormalTok{ mean\_pct }\SpecialCharTok{+} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ se\_pct),}
+                  \AttributeTok{size =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_viridis\_d}\NormalTok{(}\AttributeTok{option =} \StringTok{"D"}\NormalTok{, }\AttributeTok{end =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{label\_percent}\NormalTok{(}\AttributeTok{scale =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title    =} \StringTok{"Water insecurity declines with county size but the regional gap persists"}\NormalTok{,}
+    \AttributeTok{subtitle =} \StringTok{"Mean \% households lacking plumbing by population quartile and region (±95\% CI)"}\NormalTok{,}
+    \AttributeTok{x        =} \StringTok{"County population quartile"}\NormalTok{,}
+    \AttributeTok{y        =} \StringTok{"Mean \% lacking plumbing"}\NormalTok{,}
+    \AttributeTok{color    =} \StringTok{"Census region"}\NormalTok{,}
+    \AttributeTok{caption  =} \StringTok{"Source: TidyTuesday 2025{-}01{-}28 | PMAP 8521"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `summarise()` has grouped output by 'pop_quartile_label'. You can override
+## using the `.groups` argument.
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Tidy_Tuesday_files/figure-latex/unnamed-chunk-2-1.pdf}}
+
+The quartile plot drives home the confounding story from the DAG. In
+every region, the smallest counties tend to have the highest rates of
+plumbing insecurity infrastructure investment scales with population.
+But the level differs dramatically by region: even the largest Southern
+counties have rates comparable to the smallest Northeastern ones. If you
+only looked at the raw correlation between population and plumbing
+access without accounting for region, you'd get a misleading picture of
+what's actually driving the variation.
+
+\section{Putting it together}\label{putting-it-together}
+
+This water insecurity example shows a common issue in program
+evaluation: the outcome we care about is influenced by many overlapping
+factors. A county's plumbing access isn't just about population size,
+it's also shaped by its region, economic conditions, history, and
+institutions.
+
+If we run a simple regression without accounting for these factors, we
+end up mixing the effect of population with all the other things tied to
+it. Controlling for region helps improve the analysis because it removes
+one of the most obvious sources of bias and lets us compare counties
+more fairly within the same region. It's still not a perfect causal
+estimate, but it's clearly better than the naive approach, and using a
+DAG helps clarify what we're controlling for and what assumptions we're
+making.
+
+If I were taking this further, I'd look for some kind of external
+variation in infrastructure investment, like a policy change or funding
+rule, that isn't driven by the counties themselves. That's what would
+allow us to move from just describing patterns to actually identifying a
+causal effect.
+
+\end{document}
